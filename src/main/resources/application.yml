@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: maxisoft--individuals-api
+  main:
+    banner-mode: off
+  jackson:
+    default-property-inclusion: NON_NULL
+    deserialization:
+      ADJUST_DATES_TO_CONTEXT_TIME_ZONE: false
+      FAIL_ON_UNKNOWN_PROPERTIES: false
+      FAIL_ON_NUMBERS_FOR_ENUMS: true
+      FAIL_ON_NULL_FOR_PRIMITIVES: true
+      USE_BIG_DECIMAL_FOR_FLOATS: true
+    generator:
+      WRITE_BIGDECIMAL_AS_PLAIN: true
+
+
+server:
+  port: 9090
+
+logging:
+  level:
+    reactor:
+      netty:
+        http:
+          client: DEBUG
