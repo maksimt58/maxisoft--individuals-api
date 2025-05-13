@@ -1,4 +1,4 @@
-package com.maxisoft.individualsapi.core.config;
+package com.maxisoft.individualsapi.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +14,7 @@ public class WebClientConfig {
     @Bean
     public WebClient keycloakWebClient(WebClient.Builder webClientBuilder){
         return webClientBuilder
-                .baseUrl("http://localhost:8080/realms")
+                .baseUrl("http://localhost:8080")
                 .build();
     }
 }
