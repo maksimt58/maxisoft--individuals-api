@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final KeycloakClient keycloakClient;
+
     private static final String LOCAL_DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     private static final DateTimeFormatter LOCAL_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(LOCAL_DATE_TIME_PATTERN);
 
@@ -35,8 +36,7 @@ public class UserService {
                 List.of(new CreateUserRequest.Credential(
                         "password",
                         userData.password(),
-                        false
-                ))
+                        false))
         );
 
         return keycloakClient.createUser(request, token);
@@ -63,12 +63,10 @@ public class UserService {
         return keycloakClient.getUserRoles(id, token);
     }
 
-
     private UserCompositeInfoResponse buildUserCompositeInfoResponse(
             UserMainInfoResponse userMainInfo,
             UserRolesInfoResponse userRoles
     ) {
-        System.out.println(userRoles);
         return UserCompositeInfoResponse.builder()
                 .id(userMainInfo.id())
                 .email(userMainInfo.email())
@@ -79,19 +77,17 @@ public class UserService {
     }
 
     private List<UserCompositeInfoResponse.Role> mapRoles(UserRolesInfoResponse userRoles) {
-        var VALID_ROLE_NAMES = Arrays.stream(UserCompositeInfoResponse.Role.values())
+        var validRoles = Arrays.stream(UserCompositeInfoResponse.Role.values())
                 .map(Enum::name)
                 .collect(Collectors.toSet());
 
         return userRoles.realmMappings().stream()
-                .filter(role -> VALID_ROLE_NAMES.contains(role.name()))
+                .filter(role -> validRoles.contains(role.name()))
                 .map(role -> UserCompositeInfoResponse.Role.valueOf(role.name()))
                 .toList();
     }
 
     private String convertTimestamp(long timestamp) {
-        return LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(timestamp),
-                ZoneOffset.UTC).format(LOCAL_DATE_TIME_FORMATTER);
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC).format(LOCAL_DATE_TIME_FORMATTER);
     }
 }

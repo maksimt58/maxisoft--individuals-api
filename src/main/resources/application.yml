@@ -24,3 +24,8 @@ logging:
       netty:
         http:
           client: DEBUG
+
+# swagger-ui custom path
+springdoc:
+  swagger-ui:
+  path: http://localhost:8086/context-path/swagger-ui.html

@@ -16,7 +16,7 @@ public class UserHandler {
 
     private final UserService userService;
     private final TokenService tokenService;
-    private final String AUTH_HEADER = "Authorization";
+    private static final String AUTH_HEADER = "Authorization";
 
     public Mono<ServerResponse> getCurrentUser(ServerRequest request) {
         var authHeaderData = request.headers().header(AUTH_HEADER);
