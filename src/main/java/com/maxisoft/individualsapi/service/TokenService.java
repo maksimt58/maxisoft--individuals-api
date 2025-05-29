@@ -1,7 +1,7 @@
 package com.maxisoft.individualsapi.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.maxisoft.individualsapi.exception.auth.InvalidCredentialsException;
+import com.maxisoft.individualsapi.exception.InvalidCredentialsException;
 import com.maxisoft.individualsapi.rest.client.auth.KeycloakClient;
 import com.maxisoft.individualsapi.rest.dto.request.LoginRequest;
 import com.maxisoft.individualsapi.rest.dto.request.RefreshTokenRequest;
