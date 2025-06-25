@@ -1,7 +1,6 @@
 package com.maxisoft.individualsapi.errorhandler;
 
 import com.maxisoft.individualsapi.exception.ApiException;
-import com.maxisoft.individualsapi.exception.AuthException;
 import com.maxisoft.individualsapi.exception.InvalidCredentialsException;
 import com.maxisoft.individualsapi.exception.UnauthorizedException;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -19,7 +18,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.maxisoft.individualsapi.errorhandler.Errors.*;
+import static com.maxisoft.individualsapi.exception.Errors.*;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Component
@@ -43,11 +42,11 @@ public class AppErrorAttributes extends DefaultErrorAttributes {
             errorMap.put("code", INVALID_CREDENTIALS);
             errorMap.put("message", message);
             errorList.add(errorMap);
-        } else if (error instanceof AuthException || error instanceof UnauthorizedException) {
+        } else if (error instanceof UnauthorizedException) {
             status = HttpStatus.UNAUTHORIZED;
             var message = error.getMessage();
             if (message == null)
-                message = error.getClass().getName();
+                message = "Invalid email or password";
 
             var errorMap = new LinkedHashMap<String, Object>();
             errorMap.put("code", UNAUTHORIZED);

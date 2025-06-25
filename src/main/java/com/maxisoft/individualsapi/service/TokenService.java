@@ -23,9 +23,6 @@ public class TokenService {
     private final ObjectMapper objectMapper;
 
     public Mono<TokenResponse> getAccessToken(RegistrationRequest userData) {
-
-        // todo юзер с таким же email -> ошибку выбросит кейклок, научиться ее заворачивать в кастомную через обработчик
-
         var isEqualsPass = userData.password().equals(userData.confirmPassword());
         if (!isEqualsPass) throw new InvalidCredentialsException("Password confirmation does not match");
 
@@ -43,12 +40,11 @@ public class TokenService {
         return keycloakClient.getRefreshAccessToken(refreshToken);
     }
 
-    //todo вынести креды в файл .env
     private Mono<TokenResponse> getInternalToken() {
         return keycloakClient.getInternalAccessToken();
     }
 
-    public String getClaimDataFromPayload(String token, String claimName) {
+    public String getClaimDataFromTokenPayload(String token, String claimName) {
         var encodedPayload = token.split("\\.")[1];
         var decodedPayload = Base64.getDecoder().decode(encodedPayload);
 

@@ -1,4 +1,4 @@
-package com.maxisoft.individualsapi.errorhandler;
+package com.maxisoft.individualsapi.exception;
 
 public enum Errors {
     UNKNOWN,

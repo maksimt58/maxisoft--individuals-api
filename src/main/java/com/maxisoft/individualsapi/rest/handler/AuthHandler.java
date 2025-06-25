@@ -22,22 +22,19 @@ public class AuthHandler {
     public Mono<ServerResponse> registration(ServerRequest request) {
         return request.bodyToMono(RegistrationRequest.class)
                 .flatMap(tokenService::getAccessToken)
-                .flatMap(this::buildTokenResponse)
-                .switchIfEmpty(ServerResponse.notFound().build()); //todo в обработчик ошибок
+                .flatMap(this::buildTokenResponse);
     }
 
     public Mono<ServerResponse> login(ServerRequest request) {
         return request.bodyToMono(LoginRequest.class)
                 .flatMap(tokenService::getAccessToken)
-                .flatMap(this::buildTokenResponse)
-                .switchIfEmpty(ServerResponse.notFound().build()); //todo в обработчик ошибок
+                .flatMap(this::buildTokenResponse);
     }
 
     public Mono<ServerResponse> refreshToken(ServerRequest request) {
         return request.bodyToMono(RefreshTokenRequest.class)
                 .flatMap(tokenService::refreshToken)
-                .flatMap(this::buildTokenResponse)
-                .switchIfEmpty(ServerResponse.notFound().build()); //todo в обработчик ошибок
+                .flatMap(this::buildTokenResponse);
     }
 
     private Mono<ServerResponse> buildTokenResponse(TokenResponse tokenResponse) {

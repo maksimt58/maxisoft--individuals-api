@@ -1,5 +1,6 @@
 package com.maxisoft.individualsapi.rest.handler;
 
+import com.maxisoft.individualsapi.exception.InvalidTokenException;
 import com.maxisoft.individualsapi.service.TokenService;
 import com.maxisoft.individualsapi.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +21,14 @@ public class UserHandler {
 
     public Mono<ServerResponse> getCurrentUser(ServerRequest request) {
         var authHeaderData = request.headers().header(AUTH_HEADER);
-        if (authHeaderData.isEmpty()) throw new RuntimeException("Invalid or expired access token"); //todo завернуть в кастом и обработчик
-        var token = authHeaderData.getFirst().split(" ")[1];
 
-        var userId = tokenService.getClaimDataFromPayload(token, "sub");
+        if (authHeaderData.isEmpty()) throw new InvalidTokenException("Invalid or expired access token");
+
+        var token = authHeaderData.getFirst().split(" ")[1];
+        var userId = tokenService.getClaimDataFromTokenPayload(token, "sub");
+        //var userId = Jwts.parser().build().parseSignedClaims(token).getPayload().getSubject();
 
         return userService.getCurrentUserInfo(userId, token)
-                .flatMap(response ->
-                        ServerResponse.ok()
-                                .contentType(APPLICATION_JSON)
-                                .bodyValue(response)
-                );
+                .flatMap(response -> ServerResponse.ok().contentType(APPLICATION_JSON).bodyValue(response));
     }
 }

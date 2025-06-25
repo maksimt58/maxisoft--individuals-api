@@ -1,12 +1,11 @@
 package com.maxisoft.individualsapi.rest.client.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.maxisoft.individualsapi.config.KeycloakProperties;
+import com.maxisoft.individualsapi.exception.UnauthorizedException;
 import com.maxisoft.individualsapi.rest.dto.request.CreateUserRequest;
 import com.maxisoft.individualsapi.rest.dto.request.LoginRequest;
 import com.maxisoft.individualsapi.rest.dto.request.RefreshTokenRequest;
-import com.maxisoft.individualsapi.rest.dto.response.TokenResponse;
-import com.maxisoft.individualsapi.rest.dto.response.UserMainInfoResponse;
-import com.maxisoft.individualsapi.rest.dto.response.UserRolesInfoResponse;
+import com.maxisoft.individualsapi.rest.dto.response.*;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -22,11 +21,12 @@ import java.util.List;
 public class KeycloakClient {
 
     private final WebClient keycloakWebClient;
+    private final KeycloakProperties keycloakProperties;
+
     private final String GRANT_TYPE_PASSWORD = "password";
     private final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
     private final String AUTHORIZATION_HEADER = "Authorization";
     private final String AUTHORIZATION_BEARER = "Bearer ";
-    private ObjectMapper objectMapper;
 
     //todo причесать
     public Mono<Void> createUser(CreateUserRequest request, String token) {
@@ -35,22 +35,19 @@ public class KeycloakClient {
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION_HEADER, AUTHORIZATION_BEARER + token)
                 .bodyValue(request)
-                .retrieve()
-                .bodyToMono(Void.class);
-        //.toBodilessEntity();
-        //.exchangeToMono(clientResponse -> {
-        //    if (clientResponse.statusCode().is4xxClientError() || clientResponse.statusCode().is5xxServerError() ) {
-        //        return clientResponse.bodyToMono(String.class)
-        //                .flatMap(body -> Mono.error(new RuntimeException(body)));
-        //    }
-        //    return clientResponse.toBodilessEntity();
-        //});
+                .exchangeToMono(clientResponse -> {
+                    if (clientResponse.statusCode().is4xxClientError()) {
+                        return clientResponse.bodyToMono(ErrorResponse.class)
+                                .flatMap(body -> Mono.error(new UnauthorizedException(body.errorMessage())));
+                    }
+                    return Mono.empty();
+                });
     }
 
     public Mono<TokenResponse> getAccessToken(LoginRequest creds) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 
-        form.put("client_id", List.of("admin-cli"));
+        form.put("client_id", List.of(keycloakProperties.getClientId()));
         form.put("username", List.of(creds.email()));
         form.put("password", List.of(creds.password()));
         form.put("grant_type", List.of(GRANT_TYPE_PASSWORD));
@@ -66,7 +63,7 @@ public class KeycloakClient {
     public Mono<TokenResponse> getRefreshAccessToken(RefreshTokenRequest refreshToken) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 
-        form.put("client_id", List.of("admin-cli"));
+        form.put("client_id", List.of(keycloakProperties.getClientId()));
         form.put("refresh_token", List.of(refreshToken.refreshToken()));
         form.put("grant_type", List.of(GRANT_TYPE_REFRESH_TOKEN));
 
@@ -82,9 +79,9 @@ public class KeycloakClient {
     public Mono<TokenResponse> getInternalAccessToken() {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 
-        form.put("client_id", List.of("admin-cli"));
-        form.put("username", List.of("admin"));
-        form.put("password", List.of("admin"));
+        form.put("client_id", List.of(keycloakProperties.getClientId()));
+        form.put("username", List.of(keycloakProperties.getClientUsername()));
+        form.put("password", List.of(keycloakProperties.getClientPassword()));
         form.put("grant_type", List.of(GRANT_TYPE_PASSWORD));
 
         return keycloakWebClient.post()
@@ -97,7 +94,7 @@ public class KeycloakClient {
 
     public Mono<UserMainInfoResponse> getUserById(String id, String token) {
         return keycloakWebClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/admin/realms/master/users/{user-id}").build(id))
+                .uri("/admin/realms/master/users/{user-id}",id)
                 .header(AUTHORIZATION_HEADER, AUTHORIZATION_BEARER + token)
                 .retrieve()
                 .bodyToMono(UserMainInfoResponse.class);
@@ -109,5 +106,12 @@ public class KeycloakClient {
                 .header(AUTHORIZATION_HEADER, AUTHORIZATION_BEARER + token)
                 .retrieve()
                 .bodyToMono(UserRolesInfoResponse.class);
+    }
+
+    public Mono<PublicKeysResponse> getPublicKeys(){
+        return keycloakWebClient.get()
+                .uri("/realms/master/protocol/openid-connect/certs")
+                .retrieve()
+                .bodyToMono(PublicKeysResponse.class);
     }
 }

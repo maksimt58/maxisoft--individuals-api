@@ -14,7 +14,7 @@ public class WebClientConfig {
     @Bean
     public WebClient keycloakWebClient(WebClient.Builder webClientBuilder){
         return webClientBuilder
-                .baseUrl("http://localhost:8080")
+                .baseUrl("http://localhost:9090")
                 .build();
     }
 }
