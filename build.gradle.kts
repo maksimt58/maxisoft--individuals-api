@@ -23,14 +23,29 @@ repositories {
     mavenCentral()
 }
 
+/*tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "com.maxisoft.individualsapi.Application"
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(
+        configurations.runtimeClasspath.get().map {
+            if (it.isDirectory) it else zipTree(it)
+        }
+    )
+}*/
+
 dependencies {
-    //implementation("org.springframework.boot:spring-boot-starter-security")
-    //implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.security:spring-security-oauth2-resource-server:6.5.1")
+    implementation("org.springframework.security:spring-security-oauth2-jose:6.5.1")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("io.jsonwebtoken:jjwt:0.12.6")
     compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     //developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-    annotationProcessor("org.projectlombok:lombok")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("io.projectreactor:reactor-test")
