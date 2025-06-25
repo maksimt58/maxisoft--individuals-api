@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: maxisoft--individuals-api
+  main:
+    banner-mode: off
+  jackson:
+    default-property-inclusion: NON_NULL
+    deserialization:
+      ADJUST_DATES_TO_CONTEXT_TIME_ZONE: false
+      FAIL_ON_UNKNOWN_PROPERTIES: false
+      FAIL_ON_NUMBERS_FOR_ENUMS: true
+      FAIL_ON_NULL_FOR_PRIMITIVES: true
+      USE_BIG_DECIMAL_FOR_FLOATS: true
+    generator:
+      WRITE_BIGDECIMAL_AS_PLAIN: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/master
+          jwk-set-uri: http://localhost:9090/realms/master/protocol/openid-connect/certs
+
+server:
+  port: 8080
+
+logging:
+  level:
+    reactor:
+      netty:
+        http:
+          client: DEBUG
+    org.springframework.security: DEBUG
+
+keycloak:
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_ID}
+  client-username: ${KEYCLOAK_CLIENT_USERNAME}
+  client-password: ${KEYCLOAK_CLIENT_PASSWORD}
+
